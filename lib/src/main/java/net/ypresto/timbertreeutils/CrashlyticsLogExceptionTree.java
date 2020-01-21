@@ -17,7 +17,9 @@ package net.ypresto.timbertreeutils;
 
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
+import org.jetbrains.annotations.Nullable;
 
 import timber.log.Timber;
 
@@ -51,13 +53,13 @@ public class CrashlyticsLogExceptionTree extends Timber.Tree {
      */
     public CrashlyticsLogExceptionTree(int logPriority, LogExclusionStrategy logExclusionStrategy) {
         // Ensure crashlytics class is available, fail-fast if not available.
-        Crashlytics.class.getCanonicalName();
+        FirebaseCrashlytics.class.getCanonicalName();
         mLogPriority = logPriority;
         mLogExclusionStrategy = logExclusionStrategy != null ? logExclusionStrategy : NullLogExclusionStrategy.INSTANCE;
     }
 
     @Override
-    protected boolean isLoggable(int priority) {
+    protected boolean isLoggable(@Nullable String tag, int priority) {
         return priority >= mLogPriority;
     }
 
@@ -68,10 +70,10 @@ public class CrashlyticsLogExceptionTree extends Timber.Tree {
         }
 
         if (t != null) {
-            Crashlytics.logException(t);
+            FirebaseCrashlytics.getInstance().recordException(t);
         } else {
             String formattedMessage = LogMessageHelper.format(priority, tag, message);
-            Crashlytics.logException(new StackTraceRecorder(formattedMessage));
+            FirebaseCrashlytics.getInstance().recordException(new StackTraceRecorder(formattedMessage));
         }
     }
 }
